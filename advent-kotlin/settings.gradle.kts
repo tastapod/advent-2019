@@ -1,2 +1,2 @@
-rootProject.name = "day3"
+rootProject.name = "advent-kotlin"
 
