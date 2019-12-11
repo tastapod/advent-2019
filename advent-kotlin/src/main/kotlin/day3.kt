@@ -1,54 +1,66 @@
 package com.tastapod.advent.day3
 
-import java.lang.IllegalArgumentException
-import kotlin.math.min
 import kotlin.math.abs
+import kotlin.math.min
 
 data class Point(val x: Int, val y: Int)
 
-data class Wire(var current: Point = Point(0, 0), val points: MutableSet<Point> = mutableSetOf()) {
-    constructor(path: String) : this() {
-        travel(path)
-    }
 
-    private val moves = mapOf(
-        'U' to { from: Point -> from.copy(y = from.y + 1) },
-        'D' to { from: Point -> from.copy(y = from.y - 1) },
-        'L' to { from: Point -> from.copy(x = from.x - 1) },
-        'R' to { from: Point -> from.copy(x = from.x + 1) }
-    )
+val moves = mapOf(
+    'U' to { from: Point -> from.copy(y = from.y + 1) },
+    'D' to { from: Point -> from.copy(y = from.y - 1) },
+    'L' to { from: Point -> from.copy(x = from.x - 1) },
+    'R' to { from: Point -> from.copy(x = from.x + 1) }
+)
 
-    private var _distance = 0
-    private val _steps = mutableMapOf<Point, Int>()
 
-    fun travel(path: String) {
-        val legs = path.split(',')
+data class Wire(
+    val current: Point = Point(0, 0),
+    val points: Set<Point> = emptySet(),
+    val steps: Map<Point, Int> = emptyMap(),
+    val distance: Int = 0
+)
 
-        for (leg in legs) {
-            val move = moves.getValue(leg[0])
-            val count = leg.substring(1).toInt()
 
-            repeat(count) {
-                current = move(current)
-                points.add(current)
-                _steps.putIfAbsent(current, ++_distance)
-            }
+fun travel(wire: Wire, path: String): Wire {
+    val legs = path.split(',')
+
+    val points = wire.points.toMutableSet() // adding to immutable sets is inefficient
+    val steps = wire.steps.toMutableMap()
+    var current = wire.current
+    var distance = wire.distance
+
+    for (leg in legs) {
+        val move = moves.getValue(leg[0])
+        val count = leg.substring(1).toInt()
+
+        repeat(count) {
+            current = move(current)
+            points += current
+            distance++
+            steps.putIfAbsent(current, distance)
         }
     }
-
-    fun crosses(other: Wire): Set<Point> = points.intersect(other.points)
-
-    fun steps(point: Point): Int {
-        return _steps.getOrElse(point) {
-            throw IllegalArgumentException("Not found: $point")
-        }
-    }
+    return Wire(current, points, steps, distance)
 }
 
-fun nearest(points: Set<Point>): Int {
+fun wire(path: String) = travel(Wire(), path)
+
+fun crosses(wire1: Wire, wire2: Wire) = wire1.points.intersect(wire2.points)
+
+fun nearestIntersection(wire1: Wire, wire2: Wire) =
+    nearestIntersection(crosses(wire1, wire2))
+
+fun nearestIntersection(points: Set<Point>): Int {
     return points.fold(Int.MAX_VALUE) { acc, p -> min(acc, abs(p.x) + abs(p.y)) }
 }
 
-fun shortest(wire1: Wire, wire2: Wire): Int {
-    return wire1.crosses(wire2).map { wire1.steps(it) + wire2.steps(it) }.fold(Int.MAX_VALUE) {acc, s -> min(acc, s)}
+fun distance(wire: Wire, point: Point) = wire.steps.getOrElse(point) {
+    throw IllegalArgumentException("Not found: $point")
+}
+
+fun shortestIntersection(wire1: Wire, wire2: Wire): Int {
+    return crosses(wire1, wire2)
+        .map { distance(wire1, it) + distance(wire2, it) }
+        .fold(Int.MAX_VALUE) { acc, s -> min(acc, s) }
 }

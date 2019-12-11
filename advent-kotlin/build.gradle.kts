@@ -1,18 +1,22 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+group = "com.tastapod"
+version = "1.0-SNAPSHOT"
+
 plugins {
     kotlin("jvm") version "1.3.61"
 }
-group = "com.tastapod"
-version = "1.0-SNAPSHOT"
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")
 }
+
 repositories {
     mavenCentral()
 }
+
 tasks {
     test {
         useJUnitPlatform()
@@ -26,20 +30,24 @@ tasks {
                 if (suite.parent == null) { // root suite
                     logger.info("----")
                     logger.info("Test result: ${result.resultType}")
-                    logger.info("Test summary: ${result.testCount} tests, " +
-                            "${result.successfulTestCount} succeeded, " +
-                            "${result.failedTestCount} failed, " +
-                            "${result.skippedTestCount} skipped")
+                    logger.info(
+                        "Test summary: ${result.testCount} tests, " +
+                                "${result.successfulTestCount} succeeded, " +
+                                "${result.failedTestCount} failed, " +
+                                "${result.skippedTestCount} skipped"
+                    )
 
                 }
             }
         })
     }
 }
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }
+
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
