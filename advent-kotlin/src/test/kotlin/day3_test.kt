@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
 
+/** Shorthand for Point(x, y) */
+private typealias P = Point
+
 class Day3Tests {
     private fun assertPoints(current: Point, points: Set<Point>, wire: Wire) {
         assertEquals(Pair(current, points), Pair(wire.current, wire.points))
@@ -27,7 +30,8 @@ class Day3Tests {
 
         // then
         assertPoints(
-            Point(0, -3), setOf(Point(0, -1), Point(0, -2), Point(0, -3)),
+            Point(0, -3),
+            setOf(P(0, -1), P(0, -1), P(0, -2), P(0, -3)),
             wire
         )
 
@@ -36,9 +40,10 @@ class Day3Tests {
 
         // then
         assertPoints(
-            Point(0, 2), setOf(
-                Point(0, 0), Point(0, 1), Point(0, 2),
-                Point(0, -1), Point(0, -2), Point(0, -3)
+            Point(0, 2),
+            setOf(
+                P(0, 0), P(0, 1), P(0, 2),
+                P(0, -1), P(0, -2), P(0, -3)
             ),
             wire
         )
@@ -48,10 +53,11 @@ class Day3Tests {
 
         // then
         assertPoints(
-            Point(3, 2), setOf(
-                Point(0, 1), Point(0, 2),
-                Point(0, 0), Point(0, -1), Point(0, -2), Point(0, -3),
-                Point(1, 2), Point(2, 2), Point(3, 2)
+            Point(3, 2),
+            setOf(
+                P(0, 1), P(0, 2),
+                P(0, 0), P(0, -1), P(0, -2), P(0, -3),
+                P(1, 2), P(2, 2), P(3, 2)
             ),
             wire
         )
@@ -61,8 +67,9 @@ class Day3Tests {
     fun `Wire stores all points in a path`() {
         val wire = wire("R1,U1,L1,D2")
         assertPoints(
-            Point(0, -1), setOf(
-                Point(0, 0), Point(1, 0), Point(1, 1), Point(0, 1), Point(0, 0), Point(0, -1)
+            Point(0, -1),
+            setOf(
+                P(0, 0), P(1, 0), P(1, 1), P(0, 1), P(0, 0), P(0, -1)
             ),
             wire
         )
@@ -70,15 +77,15 @@ class Day3Tests {
 
     @Test
     fun `Wire identifies crossover`() {
-        val wire1 = Wire(points = setOf(Point(1, 0), Point(1, 1), Point(-2, 2)))
-        val wire2 = Wire(points = setOf(Point(1, 0), Point(2, 0), Point(-2, 2)))
+        val wire1 = Wire(points = setOf(P(1, 0), P(1, 1), P(-2, 2)))
+        val wire2 = Wire(points = setOf(P(1, 0), P(2, 0), P(-2, 2)))
 
-        assertEquals(setOf(Point(1, 0), Point(-2, 2)), crosses(wire1, wire2))
+        assertEquals(setOf(P(1, 0), P(-2, 2)), crosses(wire1, wire2))
     }
 
     @Test
     fun `Calculates distance of nearest intersection`() {
-        val points = setOf(Point(8, 0), Point(-2, 2))
+        val points = setOf(P(8, 0), P(-2, 2))
         assertEquals(4, nearestIntersection(points))
     }
 
@@ -114,11 +121,15 @@ class Day3Tests {
         var wire = wire("R4,U1,L3")
 
         assertAll(
-            { assertEquals(1, distance(wire, Point(1, 0))) },
-            { assertEquals(2, distance(wire, Point(2, 0))) },
-            { assertEquals(4, distance(wire, Point(4, 0))) },
-            { assertEquals(7, distance(wire, Point(2, 1))) },
-            { assertThrows<IllegalArgumentException> { distance(wire, Point(11, 22)) } }
+            { assertEquals(1, distance(wire, P(1, 0))) },
+            { assertEquals(2, distance(wire, P(2, 0))) },
+            { assertEquals(4, distance(wire, P(4, 0))) },
+            { assertEquals(7, distance(wire, P(2, 1))) },
+            {
+                assertThrows<IllegalArgumentException> {
+                    distance(wire, P(11, 22)) // no such point
+                }
+            }
         )
 
         wire = travel(wire, "R3")
@@ -147,7 +158,6 @@ class Day3Tests {
             }
         )
     }
-
 
     @Test
     fun `puzzle 2`() {

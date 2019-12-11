@@ -5,7 +5,6 @@ import kotlin.math.min
 
 data class Point(val x: Int, val y: Int)
 
-
 val moves = mapOf(
     'U' to { from: Point -> from.copy(y = from.y + 1) },
     'D' to { from: Point -> from.copy(y = from.y - 1) },
@@ -20,7 +19,6 @@ data class Wire(
     val steps: Map<Point, Int> = emptyMap(),
     val distance: Int = 0
 )
-
 
 fun travel(wire: Wire, path: String): Wire {
     val legs = path.split(',')
