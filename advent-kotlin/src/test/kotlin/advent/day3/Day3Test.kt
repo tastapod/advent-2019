@@ -9,7 +9,7 @@ import org.junit.jupiter.api.assertThrows
 /** Shorthand for Point(x, y) */
 private typealias P = Point
 
-class Day3Tests {
+class Day3Test {
     private fun assertPoints(current: Point, points: Set<Point>, wire: Wire) {
         assertEquals(Pair(current, points), Pair(wire.current, wire.points))
     }
