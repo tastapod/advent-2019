@@ -1,4 +1,4 @@
-package com.tastapod.advent.day3
+package advent.day3
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

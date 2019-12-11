@@ -1,4 +1,4 @@
-package com.tastapod.advent.day3
+package advent.day3
 
 import kotlin.math.abs
 import kotlin.math.min
@@ -46,8 +46,7 @@ fun wire(path: String) = travel(Wire(), path)
 
 fun crosses(wire1: Wire, wire2: Wire) = wire1.points.intersect(wire2.points)
 
-fun nearestIntersection(wire1: Wire, wire2: Wire) =
-    nearestIntersection(crosses(wire1, wire2))
+fun nearestIntersection(wire1: Wire, wire2: Wire) = nearestIntersection(crosses(wire1, wire2))
 
 fun nearestIntersection(points: Set<Point>): Int {
     return points.fold(Int.MAX_VALUE) { acc, p -> min(acc, abs(p.x) + abs(p.y)) }
