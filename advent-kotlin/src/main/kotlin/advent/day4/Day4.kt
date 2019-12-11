@@ -20,4 +20,6 @@ fun isPasswordCandidate(guess: Int): Boolean {
 
 fun main() {
     println((353096..843212).fold(0) { total, candidate -> total + if (isPasswordCandidate(candidate)) 1 else 0 })
+
+    // part 1: 579
 }
