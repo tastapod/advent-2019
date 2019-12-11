@@ -13,7 +13,7 @@ class Day4Test {
     fun `allows valid password`() {
         assertAll(
             { 112345 proves true },
-            { 111111 proves true }
+            { 112333 proves true }
         )
     }
 
@@ -41,6 +41,17 @@ class Day4Test {
             {113456 proves true},
             {123455 proves true},
             {113454 proves false}
+        )
+    }
+
+    @Test
+    fun `fails unless exactly a pair`() {
+        assertAll(
+            {112233 proves true},
+            {123444 proves false},
+            {123334 proves false},
+            {111122 proves true},
+            {112222 proves true}
         )
     }
 }
