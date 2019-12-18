@@ -1,5 +1,7 @@
 package advent.day2
 
+import advent.intcode.IntcodeComputer
+import advent.intcode.Operator
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -7,31 +9,31 @@ import org.junit.jupiter.api.assertAll
 class Day2Test {
     @Test
     fun `end operator`() {
-        val state = Machine(listOf(-1, -1, -1, -1, 99, 10, 9, 8, -1, 11, 22), 4)
-        assertEquals(state, state.end())
+        val state = IntcodeComputer(listOf(-1, -1, -1, -1, 99, 10, 9, 8, -1, 11, 22), 4)
+        assertEquals(state, Operator.STOP(state))
     }
 
     @Test
     fun `add operator`() {
-        val state = Machine(listOf(-1, -1, -1, -1, 1, 10, 9, 8, -1, 11, 22), 4)
+        val state = IntcodeComputer(listOf(-1, -1, -1, -1, 1, 10, 9, 8, -1, 11, 22), 4)
         assertEquals(
-            Machine(listOf(-1, -1, -1, -1, 1, 10, 9, 8, 33, 11, 22), 8),
-            state.add()
+            IntcodeComputer(listOf(-1, -1, -1, -1, 1, 10, 9, 8, 33, 11, 22), 8),
+            Operator.ADD(state)
         )
     }
 
     @Test
     fun `multiply operator`() {
-        val state = Machine(listOf(-1, -1, -1, -1, 1, 10, 9, 8, -1, 11, 22), 4)
+        val state = IntcodeComputer(listOf(-1, -1, -1, -1, 1, 10, 9, 8, -1, 11, 22), 4)
         assertEquals(
-            Machine(listOf(-1, -1, -1, -1, 1, 10, 9, 8, 242, 11, 22), 8),
-            state.multiply()
+            IntcodeComputer(listOf(-1, -1, -1, -1, 1, 10, 9, 8, 242, 11, 22), 8),
+            Operator.MULTIPLY(state)
         )
     }
 
     @Test
     fun `run example 1`() {
-        val state = Machine(
+        val state = IntcodeComputer(
             listOf(
                 1, 9, 10, 3,
                 2, 3, 11, 0,
@@ -52,7 +54,7 @@ class Day2Test {
     }
 
     private infix fun List<Int>.produces(expected: List<Int>) {
-        assertEquals(expected, Machine(this).run(), this.toString())
+        assertEquals(expected, IntcodeComputer(this).run(), this.toString())
     }
 
     @Test

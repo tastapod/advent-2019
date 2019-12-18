@@ -1,64 +1,6 @@
 package advent.day2
 
-open class Machine(private val intcode: List<Int>, private val pos: Int = 0) {
-
-    private fun apply(op: (Int, Int) -> Int): Machine {
-        val result = op(intcode[intcode[pos + 1]], intcode[intcode[pos + 2]])
-        val dest = intcode[pos + 3]
-        return Machine(
-            pos = pos + 4,
-            intcode = intcode.mapIndexed { i, x -> if (i == dest) result else x }
-        )
-    }
-
-    fun add() = apply(Int::plus)
-
-    fun multiply() = apply(Int::times)
-
-    /** Override run() to terminate recursion */
-    fun end(): Machine =
-        object : Machine(intcode, pos) {
-            override fun run() = intcode
-        }
-
-    fun run1202() = Machine(intcode.withNounAndVerb(12, 2)).run()
-
-    /** Recursively invoke program until we get to an end instruction */
-    open fun run(): List<Int> =
-        invoke(intcode[pos]).run()
-
-    fun invoke(opcode: Int) =
-        when (opcode) {
-            1 -> add()
-            2 -> multiply()
-            99 -> end()
-            else -> {
-                throw IllegalStateException("opcode = $opcode")
-            }
-        }
-
-    // ------------------- generated code below here -------------------
-
-    override fun toString(): String {
-        return "Machine(intcode=$intcode, pos=$pos)"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Machine) return false
-
-        if (intcode != other.intcode) return false
-        if (pos != other.pos) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = intcode.hashCode()
-        result = 31 * result + pos
-        return result
-    }
-}
+import advent.intcode.IntcodeComputer
 
 val MEMORY = listOf(
     1, 0, 0, 3, 1, 1, 2, 3, 1, 3, 4, 3, 1, 5, 0, 3, 2, 10, 1, 19, 1, 19, 9, 23, 1,
@@ -71,33 +13,16 @@ val MEMORY = listOf(
     143, 147, 1, 13, 147, 151, 1, 151, 2, 155, 1, 10, 155, 0, 99, 2, 14, 0, 0
 )
 
-/*
-def solve_part_2():
-    for noun in range(100):
-        for verb in range(100):
-            intcode = list(memory)
-            intcode[1], intcode[2] = noun, verb
-            result = run(intcode)[0]
-            if result == 19690720:
-                print(100 * noun + verb)
-                return
-
- */
-
-
-fun List<Int>.withNounAndVerb(noun: Int, verb: Int): List<Int> {
-    return this.toMutableList().also {
-        it[1] = noun
-        it[2] = verb
-    }.toList()
+private fun solvePart1() {
+    println(IntcodeComputer(MEMORY).withNounAndVerb(12, 2).run()[0])
 }
 
-fun solvePart2() {
+private fun solvePart2() {
     val goal = 19690720
 
     for (noun in 0..99) {
         for (verb in 0..99) {
-            val result = Machine(MEMORY.withNounAndVerb(noun, verb)).run()[0]
+            val result = IntcodeComputer(MEMORY).withNounAndVerb(noun, verb).run()[0]
             if (result == goal) {
                 println(noun * 100 + verb)
             }
@@ -106,6 +31,6 @@ fun solvePart2() {
 }
 
 fun main() {
-    println(Machine(MEMORY).run1202()[0])
+    solvePart1()
     solvePart2()
 }
