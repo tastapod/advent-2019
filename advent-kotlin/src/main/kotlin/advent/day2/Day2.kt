@@ -14,7 +14,7 @@ val MEMORY = listOf(
 )
 
 private fun solvePart1() {
-    println(IntcodeComputer(MEMORY).withNounAndVerb(12, 2).run()[0])
+    println(IntcodeComputer(MEMORY).withNounAndVerb(12, 2).runToEnd().program[0])
 }
 
 private fun solvePart2() {
@@ -22,7 +22,7 @@ private fun solvePart2() {
 
     for (noun in 0..99) {
         for (verb in 0..99) {
-            val result = IntcodeComputer(MEMORY).withNounAndVerb(noun, verb).run()[0]
+            val result = IntcodeComputer(MEMORY).withNounAndVerb(noun, verb).runToEnd().program[0]
             if (result == goal) {
                 println(noun * 100 + verb)
             }
