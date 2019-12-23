@@ -1,77 +1,64 @@
 package advent.intcode
 
-enum class Operator(
-        val opcode: Int,
-        val numParams: Int,
-        val hasTarget: Boolean,
-        val run: (IntcodeComputer) -> IntcodeComputer) {
-
-    ADD(1, 2, true, IntcodeComputer::add),
-    MULTIPLY(2, 2, true, IntcodeComputer::multiply),
-    READ(3, 0, true, IntcodeComputer::read),
-    WRITE(4, 1, false, IntcodeComputer::write),
-    STOP(99, 0, false, IntcodeComputer::stop);
-
-    companion object {
-        fun forOpcode(opcode: Int) = values().first { it.opcode == opcode }
-    }
-}
-
 data class IntcodeComputer(
         val program: List<Int>,
         val pos: Int = 0,
         val input: List<Int> = emptyList(),
         val output: List<Int> = emptyList()
 ) {
-    private val instruction by lazy { Instruction() }
+    private val opcode: Int = program[pos] // not involved in data class properties
 
-    inner class Instruction() {
-        val opcode: Int = program[pos] % 100
-        private val op = Operator.forOpcode(opcode)
-        private val values: List<Int> = (1..op.numParams).map {
+    inner class Instruction(numParams: Int, hasTarget: Boolean) {
+        private val values: List<Int> = (1..numParams).map {
             program[program[pos + it]] // TODO handle immediate params
         }
-        val targetIndex = if (op.hasTarget) program[pos + op.numParams + 1] else null
+        val targetIndex = if (hasTarget) program[pos + numParams + 1] else null
 
         operator fun get(i: Int) = values[i]
-
-        fun run() = op
-                .run(this@IntcodeComputer)
     }
 
-    fun run() = instruction.run()
+    fun run() = when (opcode % 100) {
+        1 -> add()
+        2 -> multiply()
+        3 -> read()
+        4 -> write()
+        99 -> stop()
+        else -> throw IllegalArgumentException("Unexpected opcode: $opcode")
+    }
 
     fun runToEnd(): IntcodeComputer {
         tailrec fun recur(computer: IntcodeComputer): IntcodeComputer =
-                if (computer.instruction.opcode == Operator.STOP.opcode) computer
-                else recur(computer.run())
+                if (computer.opcode == 99) computer else recur(computer.run())
         return recur(this)
     }
 
     private fun invokeBinary(op: (Int, Int) -> Int): IntcodeComputer {
+        val instruction = Instruction(2, true)
         return put(instruction.targetIndex!!, op(instruction[0], instruction[1]))
                 .advance(4)
     }
 
-    fun add(): IntcodeComputer {
+    private fun add(): IntcodeComputer {
         return invokeBinary(Int::plus)
     }
 
-    fun multiply(): IntcodeComputer {
+    private fun multiply(): IntcodeComputer {
         return invokeBinary(Int::times)
     }
 
-    fun read(): IntcodeComputer {
+    private fun read(): IntcodeComputer {
+        val instruction = Instruction(0, true)
         return put(instruction.targetIndex!!, input.first())
                 .copy(input = input.drop(1))
                 .advance(2)
     }
 
-    fun write(): IntcodeComputer {
+    private fun write(): IntcodeComputer {
+        val instruction = Instruction(1, false)
         return copy(output = output + instruction[0]).advance(2)
     }
 
-    fun stop(): IntcodeComputer {
+    private fun stop(): IntcodeComputer {
         return this
     }
 

@@ -11,7 +11,7 @@ class Day5Test {
                 listOf(-1, -1, -1, -1, 3, 7, -1, -1), 4, input = listOf(111))
         Assertions.assertEquals(IntcodeComputer(
                 listOf(-1, -1, -1, -1, 3, 7, -1, 111), 6),
-                computer.read())
+                computer.run())
     }
 
     @Test
