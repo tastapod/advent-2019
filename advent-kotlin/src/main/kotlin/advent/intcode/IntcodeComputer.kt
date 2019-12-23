@@ -6,30 +6,39 @@ data class IntcodeComputer(
         val input: List<Int> = emptyList(),
         val output: List<Int> = emptyList()
 ) {
-    private val opcode: Int = program[pos] // not involved in data class properties
+    private val opcode: Int
+        get() = program[pos] // not involved in data class properties
 
     inner class Instruction(numParams: Int, hasTarget: Boolean) {
-        private val values: List<Int> = (1..numParams).map {
-            program[program[pos + it]] // TODO handle immediate params
-        }
+        private val values: List<Int>
         val targetIndex = if (hasTarget) program[pos + numParams + 1] else null
+
+        init {
+            var argTypes = opcode / 100
+            values = (1..numParams).map {
+                val isImmediate = argTypes % 10 == 1
+                argTypes /= 10
+                if (isImmediate) program[pos + it] else program[program[pos + it]]
+            }
+        }
 
         operator fun get(i: Int) = values[i]
     }
 
-    fun run() = when (opcode % 100) {
-        1 -> add()
-        2 -> multiply()
-        3 -> read()
-        4 -> write()
-        99 -> stop()
-        else -> throw IllegalArgumentException("Unexpected opcode: $opcode")
-    }
+    fun run(): IntcodeComputer =
+            when (opcode % 100) {
+                1 -> add()
+                2 -> multiply()
+                3 -> read()
+                4 -> write()
+                99 -> stop()
+                else -> throw IllegalArgumentException("Unexpected opcode: $opcode")
+            }
 
     fun runToEnd(): IntcodeComputer {
-        tailrec fun recur(computer: IntcodeComputer): IntcodeComputer =
-                if (computer.opcode == 99) computer else recur(computer.run())
-        return recur(this)
+        tailrec fun recurse(computer: IntcodeComputer): IntcodeComputer =
+                if (computer.opcode == 99) computer else recurse(computer.run())
+        return recurse(this)
     }
 
     private fun invokeBinary(op: (Int, Int) -> Int): IntcodeComputer {
