@@ -6,21 +6,19 @@ data class IntcodeComputer(
         val input: List<Int> = emptyList(),
         val output: List<Int> = emptyList()
 ) {
-    private val opcode: Int
-        get() = program[pos] // not involved in data class properties
+    private val opcode: Int // separate from data class properties
+        get() = program[pos]
 
     inner class Instruction(numParams: Int, hasTarget: Boolean) {
-        private val values: List<Int>
-        val targetIndex = if (hasTarget) program[pos + numParams + 1] else null
-
-        init {
+        private val values: List<Int> = run {
             var argTypes = opcode / 100
-            values = (1..numParams).map {
+            (1..numParams).map {
                 val isImmediate = argTypes % 10 == 1
                 argTypes /= 10
                 if (isImmediate) program[pos + it] else program[program[pos + it]]
             }
         }
+        val targetIndex = if (hasTarget) program[pos + numParams + 1] else null
 
         operator fun get(i: Int) = values[i]
     }
@@ -31,6 +29,10 @@ data class IntcodeComputer(
                 2 -> multiply()
                 3 -> read()
                 4 -> write()
+                5 -> jumpIfTrue()
+                6 -> jumpIfFalse()
+                7 -> storeIfLessThan()
+                8 -> storeIfEqual()
                 99 -> stop()
                 else -> throw IllegalArgumentException("Unexpected opcode: $opcode")
             }
@@ -55,21 +57,35 @@ data class IntcodeComputer(
         return invokeBinary(Int::times)
     }
 
-    private fun read(): IntcodeComputer {
-        val instruction = Instruction(0, true)
-        return put(instruction.targetIndex!!, input.first())
-                .copy(input = input.drop(1))
-                .advance(2)
-    }
+    private fun read(): IntcodeComputer =
+            Instruction(0, true).let {
+                put(it.targetIndex!!, input.first())
+                        .copy(input = input.drop(1))
+                        .advance(2)
+            }
 
-    private fun write(): IntcodeComputer {
-        val instruction = Instruction(1, false)
-        return copy(output = output + instruction[0]).advance(2)
-    }
+    private fun write(): IntcodeComputer =
+            Instruction(1, false).let {
+                copy(output = output + it[0]).advance(2)
+            }
 
-    private fun stop(): IntcodeComputer {
-        return this
-    }
+    private fun stop(): IntcodeComputer = this
+
+    private fun jumpIf(cond: (Int) -> Boolean): IntcodeComputer =
+            Instruction(2, false).let {
+                if (cond(it[0])) copy(pos = it[1]) else advance(4)
+            }
+
+    private fun jumpIfTrue() = jumpIf { it == 0 }
+    private fun jumpIfFalse() = jumpIf { it != 0 }
+
+    private fun storeIf(cond: (Int, Int) -> Boolean): IntcodeComputer =
+            Instruction(2, true).let {
+                put(it.targetIndex!!, if (cond(it[0], it[1])) 1 else 0).advance(4)
+            }
+
+    private fun storeIfLessThan() = storeIf { a, b -> a < b }
+    private fun storeIfEqual() = storeIf { a, b -> a == b }
 
     // utility functions
 
