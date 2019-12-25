@@ -43,10 +43,9 @@ data class IntcodeComputer(
         return recurse(this)
     }
 
-    private fun invokeBinary(op: (Int, Int) -> Int): IntcodeComputer {
-        val instruction = Instruction(2, true)
-        return put(instruction.targetIndex!!, op(instruction[0], instruction[1]))
-                .advance(4)
+    private fun invokeBinary(op: (Int, Int) -> Int): IntcodeComputer =
+        Instruction(2, true).let {
+            put(it.targetIndex!!, op(it[0], it[1])).advance(4)
     }
 
     private fun add(): IntcodeComputer {
@@ -73,11 +72,11 @@ data class IntcodeComputer(
 
     private fun jumpIf(cond: (Int) -> Boolean): IntcodeComputer =
             Instruction(2, false).let {
-                if (cond(it[0])) copy(pos = it[1]) else advance(4)
+                if (cond(it[0])) copy(pos = it[1]) else advance(3)
             }
 
-    private fun jumpIfTrue() = jumpIf { it == 0 }
-    private fun jumpIfFalse() = jumpIf { it != 0 }
+    private fun jumpIfTrue() = jumpIf { it != 0 }
+    private fun jumpIfFalse() = jumpIf { it == 0 }
 
     private fun storeIf(cond: (Int, Int) -> Boolean): IntcodeComputer =
             Instruction(2, true).let {
