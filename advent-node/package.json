@@ -1,0 +1,15 @@
+{
+  "name": "advent-node",
+  "version": "1.0.0",
+  "description": "node.js solutions to some of Advent of Code 2019",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^6.2.2"
+  }
+}
