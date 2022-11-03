@@ -1,5 +1,4 @@
 import math
-import sys
 from contextlib import closing
 
 def calculate_fuel(mass):
@@ -21,6 +20,5 @@ if __name__ == "__main__":
         fuel = calculate_fuel(int(mass.rstrip()))
         extra = calculate_extra_fuel(fuel)
         total += fuel + extra
-        
+
     print(total)
-  
