@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^10.1.0"
+    "mocha": "^10.8.2"
   },
   "volta": {
     "node": "18.12.0"
